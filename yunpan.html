@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="css/style.css"/>
+	</head>
+	<body>
+		<div id="box">
+			<header class="header">
+				<h2 class="logo fl">妙味云盘</h2>
+				<div class="user fr">
+					<span class="fl">
+						<img src="images/user_photo.png"/>
+					</span>
+					<i class="line fl"></i>
+					<em class="fl"></em>
+				</div>
+			</header>
+			<nav class="nav">
+				<ul class="fl left">
+					<li>
+						<a href="#">下载</a>
+						<i></i>
+					</li>
+					<li>
+						<a href="#">分享</a>
+						<i></i>
+					</li>
+					<li>
+						<a href="#" id="moveTo">移动到</a>
+						<i></i>
+					</li>
+					<li>
+						<a href="#" id="reName">重命名</a>
+						<i></i>
+					</li>
+					<li>
+						<a href="#" id="delFile">删除</a>
+						<i></i>
+					</li>
+					<li>
+						<a href="#" id="createFile">新建文件夹</a>
+						<i></i>
+					</li>
+					<li>
+						<a href="#" class="refresh"></a>
+						<i></i>
+					</li>
+				</ul>
+				<ul class="fr right">
+					<li id="rowStyle">
+						<a href="#" class="refresh"></a>
+						<i></i>
+					</li>
+					<li class="sort">
+						<a href="#"></a>
+						<i></i>						
+					</li>
+				</ul>	
+				<ol id="sortSel">
+					<li id="sortTime">
+						<i></i>
+						<a href="#">按时间排序</a>						
+					</li>
+					<li id="sortTitle">
+						<i></i>
+						<a href="#">按字母排序</a>						
+					</li>
+					<li id="showThumbnail">
+						<i></i>
+						<a href="#">显示缩略图</a>						
+					</li>
+				</ol>
+			</nav>
+			<section class="clearfix">
+				<div class="fl treeContent">
+					<div class="tree"></div>
+				</div>
+				<div class="content fl">
+					<div class="content_nav">
+						<span class="selectAll"></span>
+						<div class="fl clearfix" id="nav_list">
+							<a href="#" class="active">微云</a><em></em>
+							<a href="#">JS课程</a><em></em>
+							<a href="#">CSS课程</a>
+						</div>
+					</div>
+					<div class="content_show">
+						<ul class="thumbnail clearfix" data-style="t">
+							<!--<li>
+								<a href="javascript:">
+									<img src="images/folder.png"/>
+									<p>
+										<input type="text" name="folderName" id="folderName" value="" /><span class="name">JS基础课程</span>
+									</p>
+									<i class="check"></i>
+								</a>
+							</li>-->
+							<!--<li>
+								<div class="info">
+									<span class="select"></span>
+									<span class="fold">JS基础课程</span>									
+								</div>
+								<div class="handle">
+									<a href="javascript:"></a>
+									<a href="javascript:"></a>
+									<a href="javascript:"></a>
+									<a href="javascript:"></a>
+									<a href="javascript:"></a>
+								</div>
+								<span class="time">2016-08-20 16:08</span>
+							</li>-->
+						</ul>
+						<div class="noFile">
+							<img src="images/noFile.png"/>
+							<h2>暂无文件</h2>
+							<p>请点击左上角的“上传”按钮添加</p>
+						</div>
+					</div>
+				</div>
+			</section>
+			<div id="wrap"></div>
+			<div class="pop_delete">
+				<dl class="clearfix">
+					<dt></dt>
+					<dd>
+						<p>确定要删除这个文件夹吗？</p>
+						<p>已删除的文件可以在回收站找到</p>
+					</dd>					
+				</dl>
+				<p class="btn">
+					<input type="button" name="" id="del_btn_ok" value="确定" />
+					<input type="button" name="" id="del_btn_cancel" value="取消" />
+				</p>
+				<i class="icon_close"></i>
+			</div>
+			<div class="pop_delFolder">
+				<i class="icon"></i>
+				<span>正在删除<i class="count">0/15</i></span>
+			</div>
+			<div class="save_position">
+				<h2>选择存储位置</h2>
+				<p class="folderName">
+					JS基础课程
+				</p>
+				<div class="center">
+					<div class="tree"></div>
+				</div>
+				<div class="btn" style="margin:0 25px;">
+					<p class="message"></p>
+					<input type="button" name="" id="move_btn_cancel" value="取消" style="float: right; margin: 0 0 0 20px;"/>
+					<input type="button" name="" id="move_btn_ok" value="确定" style="float: right;"/>
+				</div>
+				<i class="icon_close"></i>
+			</div>
+			<div class="waring timeout">
+				<p>连接服务器超时，请稍后再试</p>
+			</div>
+			<div class="waring delFolder_success">
+				<p>删除文件成功</p>
+			</div>
+			<div class="waring select_folder">
+				<p>请选择文件</p>
+			</div>			
+		</div>
+		<script src="js/data.js"></script>
+		<script src="js/resize.js"></script>
+		<script src="js/tween.js"></script>
+		<script src="js/utils.js"></script>
+		<script type="text/javascript">
+			// 树形菜单容器
+			var tree = document.querySelector('.treeContent .tree');			
+			// 右边页面导航容器
+			var nav_list = document.getElementById('nav_list');			
+			// 无文件
+			var noFile = document.querySelector('.noFile');
+			
+			// 属性菜单所有div
+			var treeDivs = tree.getElementsByTagName("div");
+			
+				// 右边页面内容容器
+			var rightUL = content_show.querySelector('ul');
+			
+			// 右边页面所有文件
+			var lis = content_show.getElementsByTagName('li');
+			
+			var sort = document.getElementsByClassName('sort')[0];
+						
+			var initId = -1;  // 最顶层的父级id
+			
+			for(var attr in data){
+				data[attr].child = getChildsByPid(data[attr].id);
+			}
+			// 初始化渲染树形菜单
+			var leval = 0;
+			// 渲染树形菜单
+			function renderTree(id,leval){
+				// 通过这个添加背景
+				leval++;
+				var treeHtml = '';
+				// 取得子集
+				var arr = getChildsByPid(id);
+				//存在子集
+				if(arr.length){
+					treeHtml +=`<ul class="style${leval}">`;
+					for(var i=0;i<arr.length;i++){
+						treeHtml +=`<li><div data-id="${arr[i].id}" data-pid = "${arr[i].pid}"><span style="margin-left:${15*leval}px">${arr[i].title}${getChildsByPid(arr[i].id).length!==0?"<i></i>":''}</span></div>`;
+						treeHtml += renderTree(arr[i].id,leval);
+						treeHtml +=`</li>`;
+					}					
+					treeHtml +=`</ul>`;
+				}
+				
+				return treeHtml;
+			}
+			tree.innerHTML = renderTree(initId,leval);
+//---------------------------数据取得部分------------------------------
+			// 通过pid取得子集
+			function getChildsByPid(id){
+				var arr = [];
+				for(var attr in data){
+					if(data[attr].pid == id){
+						arr.push(data[attr]);
+					}
+				}
+				
+				return arr;
+			}
+			
+			// 通过id获取所有的父元素
+			function getParentsById(id){
+				var arr=[]
+				for(var attr in data){
+					if(data[attr].id == id){
+						arr.push(data[attr]);
+					    arr = arr.concat(getParentsById(data[attr].pid));
+						break;
+					}					
+				}
+				
+				return arr;
+			}
+			
+			// 通过id取得对应元素
+			function getDataById(id){
+				for(var attr in data){
+					if(attr == id){
+						return true;
+					}
+				}
+				return false;
+			}
+//---------------------------数据取得部分------------------------------	
+	
+//	// 初始化树形菜单显示
+//	var ul = tree.children[0];
+//	// 点击树形菜单
+//	treeOnclik(ul);
+//	// 树形菜单点击
+//	function treeOnclik(obj){
+//		var child = obj.children;
+//		for(var i=0;i<child.length;i++){
+//			child[i].index = i;
+//			child[i].firstElementChild.onclick = function(ev){
+//				console.log(1);
+//				var target = ev.target;
+//				var preIndex  = this.parentNode.parentNode.preIndex;
+//				if(preIndex != this.parentNode.index){
+//						if(preIndex || preIndex === 0){
+//							var uls = child[preIndex].getElementsByTagName('ul');
+//							for(var j=0;j<uls.length;j++){
+//								uls[j].style.display = 'none';
+//								uls[j].previousElementSibling.className  = '';
+//								uls[j].previousElementSibling.isShow = false;
+//							}
+//						}
+//						
+//						
+//					}
+//									
+//				this.parentNode.parentNode.preIndex = this.parentNode.index;																	
+//					
+//				// 右边菜单栏显示				
+//				nav_list.innerHTML = createNavHtml(this.dataset.id);
+//				
+//				
+//				if(!this.nextElementSibling){
+//					if(target.nodeName === 'SPAN'){
+//							// 无文件元素显示
+//						noFile.style.display = 'block';
+//						// 设置无文件元素的位置
+//						noFile.style.left = (noFile.parentNode.clientWidth- noFile.offsetWidth)/2 +'px'; 
+//						noFile.style.top = (noFile.parentNode.clientHeight- noFile.offsetHeight)/2 +'px';
+//						// 缩略图列表隐藏
+//						thumbnail.style.display = 'none';
+//					}
+//					return;
+//				}
+//				
+//				if(this.isShow){
+//					this.isShow  =false;
+//					this.className = '';
+//					this.nextElementSibling.style.display = 'none';
+//				}else{
+//					this.isShow  =true;
+//					this.className = 'active';
+//					this.nextElementSibling.style.display = 'block';
+//					treeOnclik(this.nextElementSibling);
+//				}	
+//				
+//				if(target.nodeName === 'SPAN'){
+//					createFileHtml(this.dataset.id,thumbnail);
+//				}
+//				
+//				
+//			}
+//			
+//		}
+//	}
+	// 初始化右边文件导航
+	nav_list.innerHTML = createNavHtml(0);
+	// 生成右侧文件导航
+	function createNavHtml(id){
+		var html = '';
+		var arr = getParentsById(id).reverse();
+		//if(arr.length){
+			for(var i=0;i<arr.length-1;i++){
+				html+=`<a href="#" data-id="${arr[i].id}">${arr[i].title}</a><em></em>`;
+			}
+		
+			html+=`<span class="active">${arr[arr.length-1].title}</span>`
+		//}
+		
+		return html;		
+	}
+	
+	// 初始化右侧文件列表
+	createFileHtml("0");
+	// 生成右侧文件列表
+	function createFileHtml(id,sortFlag){
+		rightUL.dataset.pid = id;
+		var arr = getChildsByPid(id);		
+		arr = data[id].child;
+		if(sortFlag){
+			arr.sort(function(a,b){
+				var aTime = new Date(a.time).getTime();
+				var bTime = new Date(b.time).getTime();
+				
+				return bTime - aTime;
+			})
+		}
+		if(arr.length){
+			rightUL.style.display = 'block';
+			noFile.style.display = 'none';
+		}else{
+			rightUL.style.display = 'none';
+			noFile.style.display = 'block';
+			noFile.style.left = (noFile.parentNode.clientWidth- noFile.offsetWidth)/2 +'px'; 
+			noFile.style.top = (noFile.parentNode.clientHeight- noFile.offsetHeight)/2 +'px';
+		}
+		
+		if(rightUL.dataset.style === 't'){
+			rightUL.innerHTML = arr.map(function(item){
+				return `<li data-id="${item.id}" data-pid="${item.pid}">
+							<a href="javascript:">
+							<img src="images/folder.png"/>
+							<input type="text" name="folderName" class="folderName" value="${item.title}" /><span class="name">${item.title}</span>
+							<i class="check"></i>
+							</a>
+						</li>`
+			}).join("");
+		}else{
+			rightUL.innerHTML = arr.map(function(item){
+				return `<li data-id="${item.id}" data-pid="${item.pid}">
+							<div class="info">
+									<span class="select"></span>
+									<span class="fold">${item.title}</span>									
+								</div>
+								<div class="handle">
+									<a href="javascript:"></a>
+									<a href="javascript:"></a>
+									<a href="javascript:"></a>
+									<a href="javascript:"></a>
+									<a href="javascript:"></a>
+								</div>
+								<span class="time">${item.time}</span>
+						</li>`
+			}).join("");
+		}
+		
+		
+	}
+	positionElement(0);
+	// 点击右边导航
+	nav_list.onclick = function(ev){
+		var target = ev.target;
+		if(target.nodeName === 'A'){
+			// 初始化右边文件导航
+			this.innerHTML = createNavHtml(target.dataset.id);
+			positionElement(target.dataset.id);
+			// 生成右侧文件列表
+			createFileHtml(target.dataset.id);
+		}
+	}
+	
+	// 全选
+	var selectAll = document.getElementsByClassName('selectAll')[0];
+	var allFile = content_show.getElementsByClassName('check');
+	selectAll.onclick = function(){
+		if(!allFile.length){
+			return;
+		}
+		if(this.checked){
+			this.classList.remove("selectAllCheck");
+			this.innerHTML = '';
+			this.checked = false;
+			Array.from(allFile).forEach(function(item){
+				item.parentNode.classList.remove('click');
+				item.innerHTML = '';
+				item.parentNode.parentNode.checked = false;
+			})
+		}else{
+			this.classList.add("selectAllCheck");
+			this.innerHTML = '√';
+			this.checked = true;
+			Array.from(allFile).forEach(function(item){
+				item.parentNode.classList.add('click');
+				item.innerHTML = '√';
+				item.parentNode.parentNode.checked = true;
+			})
+		}
+		
+		return false;
+		
+	}
+	
+	// 点击文件选中
+	content_show.onclick = function(ev){
+		var target =  ev.target;
+		if(target.nodeName === 'I'){
+			if(target.parentNode.parentNode.checked){
+				target.innerHTML = '';
+				target.parentNode.classList.remove('click');
+				target.parentNode.parentNode.checked = false;
+			}else{
+				target.innerHTML = '√';
+				target.parentNode.classList.add('click');
+				target.parentNode.parentNode.checked = true;
+			}
+			
+			if(!selectSum().length){
+				selectAll.classList.remove('selectAllCheck');
+				selectAll.innerHTML = '';
+				selectAll.checked = false;
+				
+			}else if(selectSum().length == lis.length){
+				selectAll.classList.add('selectAllCheck');
+				selectAll.innerHTML = '√';
+				selectAll.checked = true;
+			}else{
+				selectAll.classList.remove('selectAllCheck');
+				selectAll.innerHTML = '';
+				selectAll.checked = false;
+			}
+			
+			return;
+		}
+		// 点击文件夹 进入文件夹
+		if(target.nodeName ==='INPUT'){
+			return;	
+		}
+		if(target.parentNode.nodeName === 'A' || target.nodeName === 'A'){
+			if(target.parentNode.nodeName === 'A'){
+				target = target.parentNode;
+			}
+				
+				var id = target.parentNode.dataset.id;
+					
+				// 初始化右边文件导航
+				nav_list.innerHTML = createNavHtml(id);
+				// 生成右侧文件列表
+				createFileHtml(id);
+				
+				// 全选按钮设置
+				if(!selectSum().length){
+					selectAll.classList.remove('selectAllCheck');
+					selectAll.innerHTML = '';
+					selectAll.checked = false;
+				}		
+					positionElement(id);		
+			
+		}
+		
+	}
+	
+	//------------------给树形菜单每一个菜单绑定点击------------------------
+
+	function addTreeClick(){
+		for( var i = 0; i < treeDivs.length; i++ ){
+			treeDivs[i].onclick  =function (){
+				var treeId = this.dataset.id;
+				nav_list.innerHTML = createNavHtml(treeId);	
+				createFileHtml(treeId);
+				positionElement(treeId);
+				selectAll.classList.remove('selectAllCheck');
+				selectAll.innerHTML = '';
+				selectAll.checked = false;
+			};
+		}	
+	}
+	
+	addTreeClick();
+	
+	// -----------------------定位到指定的元素------------------------------
+	function positionElement(id){
+		// 给一个id，我给这个id对应的div添加样式
+		for( var i = 0; i < treeDivs.length; i++ ){
+			treeDivs[i].classList.remove('active');
+			if(treeDivs[i].dataset.id == id){
+				treeDivs[i].classList.add("active");
+			}
+		}
+	}
+	
+	// -------------------判断右边文件选中个数-------------------------
+	function selectSum(){
+		var arr = [];
+		for(var i=0;i<lis.length;i++){
+			if(lis[i].checked){
+				arr.push(lis[i])
+			}
+		}
+		return arr;
+	}
+	
+	selectZone(content_show);
+	//-------------------------框选-----------------------------------
+	function selectZone(element){		
+		element.onmousedown = function(ev){
+			if(lis.length === 0){
+				return;
+			}
+			if(ev.target.nodeName === 'A' || ev.target.parentNode.nodeName === 'A'){
+					return;
+			}			
+			
+			// 取消全选样式
+			selectAll.classList.remove("selectAllCheck");
+			selectAll.innerHTML = '';
+			selectAll.checked = false;
+			
+			// 文件元素样式取消
+			for(var i=0;i<lis.length;i++){
+					var span = lis[i].getElementsByTagName('i')[0];
+					span.innerHTML = '';
+					span.parentNode.classList.remove('click');
+					lis[i].checked = false;	
+			}	
+			
+				// 创建选矿元素
+			var div = document.createElement('div');
+			div.className = 'selectZone';
+			document.body.appendChild(div);
+			
+			// 鼠标初始位置 
+			var disX = ev.pageX;
+			var disY = ev.pageY;
+			
+			div.style.left = disX + 'px';
+			div.style.top = disY + 'px';
+			document.onmousemove = function(ev){
+				// 框选元素的宽高
+				var height = Math.abs(ev.pageY - disY);
+				var width = Math.abs(ev.pageX - disX);
+				
+				div.style.height = height +'px';
+				div.style.width = width + 'px';
+				
+				// 框选元素的位置
+				div.style.left = Math.min(disX,ev.pageX) + 'px';
+				div.style.top = Math.min(disY,ev.pageY) + 'px';
+				
+				// 框选元素碰到文件元素 文件元素选中
+				for(var i=0;i<lis.length;i++){
+					var span = lis[i].getElementsByTagName('i')[0];
+					if(collision(div,lis[i])){
+						span.innerHTML = '√';
+						span.parentNode.classList.add('click');
+						lis[i].checked = true;
+					}else{
+						span.innerHTML = '';
+						span.parentNode.classList.remove('click');
+						lis[i].checked = false;
+					}
+				}
+			}
+			
+			document.onmouseup = function(){
+				if(selectSum().length){
+					if(selectSum().length === lis.length){
+						selectAll.classList.add("selectAllCheck");
+						selectAll.innerHTML = '√';
+						selectAll.checked = true;
+					}else{
+						selectAll.classList.remove("selectAllCheck");
+						selectAll.innerHTML = '';
+						selectAll.checked = false;
+					}
+				}
+				document.onmousemove = document.onmouseup = null;
+				div.remove();
+			}
+			
+			ev.preventDefault();
+		}
+	}
+	
+	// 碰撞检测
+	
+	function collision(obj1,obj2){
+		var obj1Rect = obj1.getBoundingClientRect();
+		var obj2Rect = obj2.getBoundingClientRect();
+		if(obj1Rect.right < obj2Rect.left || obj1Rect.left > obj2Rect.right || obj1Rect.bottom < obj2Rect.top || obj1Rect.top > obj2Rect.bottom){
+			return false;
+		}
+		return true;
+	}
+	
+	// 新建文件夹
+	var n = 10;
+	var createFile = document.getElementById('createFile');
+	createFile.onclick = function(ev){
+		if(!lis.length){
+			rightUL.style.display = 'block';
+			noFile.style.display = 'none';
+		}
+		
+		var obj = content_show.firstElementChild
+		var pid = obj.dataset.pid;
+		var li = document.createElement('li');
+		var a = document.createElement('a');
+		a.href = 'javascript:'
+		var img = document.createElement('img');
+		img.src = 'images/folder.png';
+		var input1 = document.createElement('input');
+		input1.style.display  ='block';
+		input1.type = 'text';
+		input1.name = 'folderName';
+		input1.className ='folderName';	
+		var span = document.createElement('span');
+		span.className = 'name';
+		span.style.display = 'none';
+		var i = document.createElement('i');
+		i.className  = 'check';
+				
+		a.appendChild(img);
+		a.appendChild(input1);
+		a.appendChild(span);
+		a.appendChild(i);
+		li.appendChild(a);
+		obj.insertBefore(li,obj.firstElementChild);
+		input1.focus();
+		
+		document.onmousedown = function(ev){	
+			if(ev.target.nodeName !== 'INPUT'){	
+					if(!input1.value.trim()){
+						li.remove();
+							if(!lis.length){
+								rightUL.style.display = 'none';
+								noFile.style.display = 'block';
+								noFile.style.left = (noFile.parentNode.clientWidth- noFile.offsetWidth)/2 +'px'; 
+			noFile.style.top = (noFile.parentNode.clientHeight- noFile.offsetHeight)/2 +'px';
+							}
+					}else{
+						var arr = getChildsByPid(pid);
+						for(var i=0;i<arr.length;i++){
+							if(arr[i].title === input1.value.trim()){
+								input1.select();
+								tips(selectFolder,"文件夹名已存在")
+								return;
+							}
+						}
+						n++;
+						input1.style.display = 'none';
+						span.style.display = 'block';
+						span.innerHTML = input1.value.trim();	
+						li.dataset.id = n;
+						li.dataset.pid = pid;
+						var obj = {
+							'id':n,
+							'pid':pid,
+							'title':input1.value.trim(),
+							'type':"flie"
+						}					
+						data[n] = obj;
+						data[n].child = [];
+						initId = -1;
+						leval = 0;
+						data[pid].child.unshift(obj);
+						tree.innerHTML = renderTree(initId,leval);
+						addTreeClick();
+						positionElement(pid);
+						tips(selectFolder,"新建文件夹成功")
+						document.onmousedown = null;
+					}
+			}
+		}
+	}
+	
+	// 重命名
+	var reName = document.getElementById('reName');
+	reName.onclick = function(){
+		var arr = selectSum();
+		var n = arr.length;
+		if(!n){
+			tips(selectFolder,"请选择文件夹")
+			return;
+		}
+		
+		if(n!==1){
+			tips(selectFolder,"每次只能选择一个文件")
+			return;
+		}
+		
+		var span = arr[0].getElementsByTagName('span')[0];
+		var inputs = arr[0].getElementsByTagName('input')[0];		
+		span.style.display = 'none';
+		inputs.style.display = 'block';
+		inputs.select();
+		
+		document.onmousedown = function(ev){
+			
+			if(ev.target.nodeName === 'INPUT'){
+				return;
+			}
+			
+			var arr1 = getChildsByPid(arr[0].dataset.pid);
+			for(var i=0;i<arr1.length;i++){
+				if(arr1[i].id == arr[0].dataset.id){
+					continue;
+				}else{
+					if(arr1[i].title === inputs.value.trim()){
+						span.style.display = 'block';
+						inputs.style.display = 'none';
+						inputs.value = span.innerHTML;
+						tips(selectFolder,"文件夹名已存在")
+						return;
+					}
+					
+				}
+			}
+			 
+			if(span.innerHTML == inputs.value.trim() || inputs.value.trim()===''){
+				span.style.display = 'block';
+				inputs.style.display = 'none';
+				inputs.value = span.innerHTML;
+				return;
+			}
+			
+			for(var attr in data){
+				if(attr == arr[0].dataset.id){
+					data[attr].title = inputs.value.trim();
+					break;
+				}
+			}
+			span.innerHTML = inputs.value.trim();
+			span.style.display = 'block';
+			inputs.style.display = 'none';
+			tips(selectFolder,"重命名成功")
+			
+			// 修改树形结构
+			for(var i=0;i<treeDivs.length;i++){
+				if(treeDivs[i].dataset.id == arr[0].dataset.id){
+					treeDivs[i].firstElementChild.innerHTML = inputs.value.trim()+'<i></i>'
+					break;
+				}
+			}
+			document.onmousedown = null;
+		}
+	}
+	
+	function tips(obj,str){
+		obj.firstElementChild.innerHTML = str;
+		mTween(obj,{top:15},300,"linear",function(){
+			setTimeout(function(){
+				mTween(obj,{top:-40},300)
+			},1000)
+		})
+	}
+	
+	// 删除文件夹
+	var delFile = document.getElementById('delFile');
+	var selectFolder = document.getElementsByClassName('select_folder')[0];
+	var delFolderSuccess = document.getElementsByClassName('delFolder_success')[0];
+	var popDelete  = document.getElementsByClassName('pop_delete')[0];
+	var close = popDelete.getElementsByClassName('icon_close')[0];
+	var btnDelOK = document.getElementById('del_btn_ok');
+	var btnDelCancel = document.getElementById('del_btn_cancel');
+	var wrap = document.getElementById('wrap');
+	var minX = 0;
+	var minY = 0;
+	var maxX = document.documentElement.clientWidth - popDelete.offsetWidth;
+	var maxY = document.documentElement.clientHeight - popDelete.offsetHeight;
+	
+	popDelete.onmousedown = function(ev){
+		if(ev.target.nodeName === 'INPUT' || ev.target.nodeName === 'I'){
+			return;
+		}
+		var disX = ev.clientX - this.offsetLeft;
+		var disY = ev.clientY - this.offsetTop;
+		document.onmousemove = function(ev){
+			var left = ev.clientX - disX;
+			var top = ev.clientY - disY;
+			if(left < minX) left = minX;
+			if(left > maxX) left = maxX;
+			if(top < minY) top = minY;
+			if(top > maxY) top = maxY;
+			popDelete.style.left = left +'px';
+			popDelete.style.top = top +'px';
+		}
+		
+		document.onmouseup = function(){
+			document.onmousemove = document.onmouseup =null;
+		}
+		ev.stopPropagation();
+		ev.preventDefault();
+	}
+	delFile.onclick = function(){
+		var arr = selectSum();
+		var n = arr.length;
+		if(!n){
+			tips(selectFolder,"请选择文件夹")
+			return;
+		}
+		wrap.style.display = 'block';
+		popDelete.style.left = (document.documentElement.clientWidth - popDelete.offsetWidth)/2 +'px';
+		mTween(popDelete,{top:(document.documentElement.clientHeight - popDelete.offsetHeight)/2},300);
+		btnDelOK.onclick = function(){
+			for(var i=0;i<arr.length;i++){				
+				var child = data[arr[i].dataset.pid].child;
+				for(var k=0;k<child.length;k++){
+					if(child[k].id == arr[i].dataset.id){
+						child.splice(k,1);
+						data[arr[i].dataset.pid].child = child;
+						break;
+					}
+				}	
+				delData(arr[i].dataset.id);
+				arr[i].remove();
+				for(var j=0;j<treeDivs.length;j++){
+					if(treeDivs[j].dataset.id == arr[i].dataset.id){
+						treeDivs[j].parentNode.remove();
+						break;
+					}
+				}
+			}				
+			
+			if(selectSum().length == 0){
+				selectAll.classList.remove("selectAllCheck");
+				selectAll.innerHTML = '';
+				selectAll.checked = false;
+			}
+			
+			if(!lis.length){
+				noFile.style.display = 'block';
+				rightUL.style.display  ='none';
+				noFile.style.left = (noFile.parentNode.clientWidth- noFile.offsetWidth)/2 +'px'; 
+			noFile.style.top = (noFile.parentNode.clientHeight- noFile.offsetHeight)/2 +'px';
+			}else{
+				noFile.style.display = 'none';
+				rightUL.style.display  ='block';
+			}
+			
+			wrap.style.display = 'none';
+			mTween(popDelete,{top:-180},300);
+			
+			tips(delFolderSuccess,"删除成功")
+		}
+		
+		btnDelCancel.onclick = close.onclick  = function(){
+			wrap.style.display = 'none';
+			mTween(popDelete,{top:-180},300);
+		}
+		
+		
+	}
+	
+	
+	// 删除数据及其子元素
+	function delData(id){
+		for(var attr in data){
+			if(attr == id){
+				var arr = getChildsByPid(id);
+				if(arr.length){
+					for(var i=0;i<arr.length;i++){
+						delData(arr[i].id)
+					}
+				}			
+					delete data[attr];
+					return;
+				}
+			}
+	}
+	
+	// 移动到
+	var moveTo = document.getElementById('moveTo');
+	var savePosition = document.getElementsByClassName('save_position')[0];
+	var closeP = savePosition.getElementsByClassName('icon_close')[0];
+	var btnMoveOK = document.getElementById('move_btn_ok');
+	var btnMoveCancel = document.getElementById('move_btn_cancel');
+	var moveFolderName = savePosition.getElementsByClassName('folderName')[0];
+	var moveTree = savePosition.getElementsByClassName('tree')[0];
+	var message  = savePosition.getElementsByClassName('message')[0];
+	savePosition.onmousedown = function(ev){
+		if(ev.target.nodeName === 'INPUT' || ev.target.nodeName === 'I'){
+			return;
+		}
+		var disX = ev.clientX - this.offsetLeft;
+		var disY = ev.clientY - this.offsetTop;
+		document.onmousemove = function(ev){
+			var left = ev.clientX - disX;
+			var top = ev.clientY - disY;
+			if(left < minX) left = minX;
+			if(left > maxX) left = maxX;
+			if(top < minY) top = minY;
+			if(top > maxY) top = maxY;
+			savePosition.style.left = left +'px';
+			savePosition.style.top = top +'px';
+		}
+		
+		document.onmouseup = function(){
+			document.onmousemove = document.onmouseup =null;
+		}
+		ev.stopPropagation();
+		ev.preventDefault();
+	}
+	
+	function getAllChildById(id){
+		var arr = [];
+		var childArr = getChildsByPid(id);
+		if(childArr.length){
+			arr = arr.concat(childArr);
+			for(var i=0;i<childArr.length;i++){
+				arr = arr.concat(getAllChildById(childArr[i].id));
+			}
+		}
+		return arr;
+	}
+	moveTo.onclick = function(){
+		var arr = selectSum();
+		var n = arr.length;
+		if(!n){
+			tips(selectFolder,"请选择文件")
+			return;
+		}
+		var arr1 = [];
+		for(var i=0;i<arr.length;i++){
+			arr1.push(arr[i].dataset.id);
+			var arr2 = getAllChildById(arr[i].dataset.id);
+			for(var j=0;j<arr2.length;j++){
+				arr1.push(arr2[j].id.toString());
+			}
+		}
+		
+		arr1.push(arr[0].dataset.pid);
+		wrap.style.display = 'block';
+		savePosition.style.display = 'block';
+		var str = '';
+		for(var attr in data){
+			if(attr == arr[0].dataset.id){
+				str = data[attr].title;
+				break;
+			}
+		}
+		if(arr.length >1){
+			str +=" 等" + arr.length + '个文件'
+		}
+		moveFolderName.innerHTML = str;
+		
+		var moveToId = null;
+		
+		moveTree.innerHTML = renderTree(-1,0);
+		var moveTreeDivs  = moveTree.getElementsByTagName('div');
+		
+		for( var i = 0; i < moveTreeDivs.length; i++ ){			
+			moveTreeDivs[i].onclick  =function (){
+				for(var j=0;j<moveTreeDivs.length;j++){
+					moveTreeDivs[j].classList.remove('active');
+				}
+				var treeId = this.dataset.id;
+				if(arr1.indexOf(treeId)!==-1){
+					message.innerHTML = '不能移动到';
+				}else{
+					message.innerHTML = '';
+				}
+				moveToId = treeId;
+				if(this.dataset.id == treeId){
+					this.classList.add("active");
+				}
+			};
+		}
+		
+		btnMoveOK.onclick = function(){
+			if(message.innerHTML !== ''){
+				return;
+			}
+			
+			if(moveToId == null){
+				message.innerHTML = '请选择要移动的位置'
+				return;
+			}
+			var arrMoveSuccess = [];
+			var arrTitle  = getChildsByPid(moveToId);
+			if(arrTitle.length){
+				for(var i=0;i<arr.length;i++){
+					var title = data[arr[i].dataset.id].title;
+					var isExist = false;
+					for(var j=0;j<arrTitle.length;j++){
+						if(arrTitle[j].title == title){
+							isExist = true;
+							break;
+						}
+					}
+					if(!isExist){
+						arrMoveSuccess.push(arr[i]);
+					}
+					
+				}
+			}			
+			for(var i=0;i<arrMoveSuccess.length;i++){
+				var child = data[arrMoveSuccess[i].dataset.pid].child;
+				for(var k=0;k<child.length;k++){
+					if(child[k].id == arrMoveSuccess[i].dataset.id){
+						child.splice(k,1);
+						data[arrMoveSuccess[i].dataset.pid].child = child;
+						break;
+					}
+				}	
+				for(var attr in data){
+					if(attr == arrMoveSuccess[i].dataset.id){
+						data[attr].pid = parseInt(moveToId);
+						data[moveToId].child.push(data[arrMoveSuccess[i].dataset.id])
+						break;
+					}
+				}
+			}			
+			
+			tree.innerHTML = renderTree(-1,0);
+			createFileHtml(arr[0].dataset.pid);
+			positionElement(arr[0].dataset.pid);
+			addTreeClick();
+			message.innerHTML = '';
+			wrap.style.display = 'none';
+			savePosition.style.display = 'none';
+			selectAll.classList.remove('selectAllCheck');
+			selectAll.innerHTML = '';
+			selectAll.checked = false;
+			if(arrMoveSuccess.length === 0){
+				tips(selectFolder,"同名文件夹存在，移动失败")
+			}else if(arrMoveSuccess.length === arr.length){
+				tips(selectFolder,"移动成功")
+			}else{
+				tips(selectFolder,"部分文件夹移动失败，同名文件夹已存在")
+			}
+		}
+		
+		btnMoveCancel.onclick = closeP.onclick  = function(){
+			wrap.style.display = 'none';
+			savePosition.style.display = 'none';
+			message.innerHTML = '';
+		}
+		
+	}
+	
+	// 列表显示
+	var rowStyle = document.getElementById('rowStyle');
+	rowStyle.onclick = function(){
+		rightUL.classList.remove('thumbnail')
+		rightUL.classList.add('row');
+		rightUL.dataset.style = 'r';
+		createFileHtml(rightUL.dataset.pid);
+		
+	}
+	
+	
+	var sortSel = document.getElementById('sortSel');
+	var sortTime = document.getElementById('sortTime');
+	var sortTitle = document.getElementById('sortTitle');
+	var showThumbnail = document.getElementById('showThumbnail');
+	sort.onclick = function(ev){
+		if(this.isShow){
+			sortSel.style.display = 'none';
+			this.classList.remove('hover');
+			this.isShow = false;
+		}else{
+			this.isShow = true;
+			sortSel.style.display = 'block';
+			this.classList.add('hover');
+		}
+		
+		ev.stopPropagation();
+	}
+	sortTime.onclick = function(ev){
+		sortSel.style.display = 'none';
+		sort.classList.remove('hover');
+		sort.isShow = false;
+		// true:顺序  false 倒叙
+		//sortTime.isSort = true
+		createFileHtml(rightUL.dataset.pid,true);
+		ev.stopPropagation();
+	}
+	
+	sortTitle.onclick = function(ev){
+		sortSel.style.display = 'none';
+		sort.classList.remove('hover');
+		sort.isShow = false;
+		ev.stopPropagation();
+	}
+	
+	showThumbnail.onclick = function(ev){
+		sortSel.style.display = 'none';
+		sort.classList.remove('hover');
+		sort.isShow = false;
+		
+		rightUL.classList.add('thumbnail')
+		rightUL.classList.remove('row');
+		rightUL.dataset.style = 't';
+		createFileHtml(rightUL.dataset.pid);
+		ev.stopPropagation();
+	}
+
+		</script>
+	</body>
+</html>
